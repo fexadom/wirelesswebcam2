@@ -117,6 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="cameraViewWindow" xml:space="preserve">
+    <value>&lt;Glide Version="1.0.7"&gt;
+  &lt;Window Name="cameraView" Width="320" Height="240" BackColor="000000"&gt;
+    &lt;TextBlock Name="tapMessage" X="60" Y="104" Width="200" Height="32" Alpha="255" Text="Tap para salir..." TextAlign="Center" TextVerticalAlign="Top" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
+  &lt;/Window&gt;
+&lt;/Glide&gt;</value>
+    <comment>Camera view window</comment>
+  </data>
   <data name="mainWindow" xml:space="preserve">
     <value>&lt;Glide Version="1.0.7"&gt;
   &lt;Window Name="mainWindow" Width="320" Height="240" BackColor="2C3C96"&gt;

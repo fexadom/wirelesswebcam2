@@ -28,9 +28,15 @@ namespace WirelessWebCam
     {
         private static GHI.Glide.Display.Window wifiWindow;
         private static GHI.Glide.Display.Window mainWindow;
+        private static GHI.Glide.Display.Window cameraWindow;
         private static CalibrationWindow calibrationWindow;
         private WiFiConfiguration wifi;
         private List wifiNetworksList;
+        private bool isStreaming;
+        private bool isWebCamOn;
+        private bool toggleTakePicture;
+        private GT.Timer captureTimer;
+        Bitmap lastBitmap;
 
         // This method is run when the mainboard is powered up or reset.   
         void ProgramStarted()
@@ -52,6 +58,10 @@ namespace WirelessWebCam
             // Use Debug.Print to show messages in Visual Studio's "Output" window during debugging.
             Debug.Print("Program Started");
 
+            isStreaming = false;
+            isWebCamOn = false;
+            toggleTakePicture = true;
+
             //Main window stuff
             mainWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.mainWindow));
             initializeMainWindow();
@@ -68,11 +78,37 @@ namespace WirelessWebCam
             calibrationWindow = new CalibrationWindow(false, false);
             calibrationWindow.CloseEvent += OnCloseCalibrar;
 
+            //Camera stuff
+            cameraWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.cameraViewWindow));
+            cameraWindow.TapEvent += cameraWindow_TapEvent;
+            camera.BitmapStreamed += camera_BitmapStreamed;
+
             GlideTouch.Initialize();
 
             Glide.MainWindow = mainWindow;
 
             
+        }
+
+        void cameraWindow_TapEvent(object sender)
+        {
+            isStreaming = false;
+            camera.StopStreaming();
+            displayTE35.SimpleGraphics.Clear();
+            Glide.MainWindow = mainWindow;
+        }
+
+        void camera_BitmapStreamed(Camera sender, Bitmap e)
+        {
+            if (isStreaming)
+                displayTE35.SimpleGraphics.DisplayImage(e, 0, 0);
+
+            if (isWebCamOn)
+            {
+                Debug.Print("Saving bitmap");
+                camera.StopStreaming();
+                lastBitmap = e;
+            }
         }
 
         private void OnCloseCalibrar(object sender)

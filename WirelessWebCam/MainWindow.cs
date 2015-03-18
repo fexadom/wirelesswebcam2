@@ -41,6 +41,11 @@ namespace WirelessWebCam
         void viewStreamingButton_TapEvent(object sender)
         {
             Debug.Print("View Streaming");
+
+            isStreaming = true;
+            camera.StartStreaming();
+
+            Glide.MainWindow = cameraWindow;
         }
 
         void startWebcamButton_TapEvent(object sender)
