@@ -50,12 +50,22 @@ namespace WirelessWebCam
 
         void startWebcamButton_TapEvent(object sender)
         {
-            Debug.Print("Start Webcam");
+            if (wifi.isConnected() && !isWebCamOn)
+            {
+                Debug.Print("Habilitando webcam");
+                captureTimer.Start();
+                isWebCamOn = true;
+            }
         }
 
         void stopWebcamButton_TapEvent(object sender)
         {
-            Debug.Print("Stop Webcam");
+            if (wifi.isConnected() && isWebCamOn)
+            {
+                Debug.Print("Deshabilitando webcam");
+                captureTimer.Stop();
+                isWebCamOn = false;
+            }
         }
 
         void calibrateButton_TapEvent(object sender)

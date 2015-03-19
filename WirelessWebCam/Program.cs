@@ -82,12 +82,28 @@ namespace WirelessWebCam
             cameraWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.cameraViewWindow));
             cameraWindow.TapEvent += cameraWindow_TapEvent;
             camera.BitmapStreamed += camera_BitmapStreamed;
+            captureTimer = new GT.Timer(5000, GT.Timer.BehaviorType.RunContinuously);
+            captureTimer.Tick += captureTimer_Tick;
 
             GlideTouch.Initialize();
 
             Glide.MainWindow = mainWindow;
 
             
+        }
+
+        void captureTimer_Tick(GT.Timer timer)
+        {
+            Debug.Print("Tick...");
+
+            if (toggleTakePicture)
+                camera.StartStreaming();
+            else
+            {
+                sendBitmapToCloud();
+            }
+
+            toggleTakePicture = !toggleTakePicture;
         }
 
         void cameraWindow_TapEvent(object sender)
@@ -143,6 +159,10 @@ namespace WirelessWebCam
             }
         }
 
-        
+        private void sendBitmapToCloud()
+        {
+            HttpHelper.CreateHttpPostRequest("http://192.168.65.162:8080/uploadImage", POSTContent.CreateBinaryBasedContent(lastBitmap.GetBitmap()), "multipart/form-data").SendRequest();
+            Debug.Print("Imagen enviada");
+        }
     }
 }
