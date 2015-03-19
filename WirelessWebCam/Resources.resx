@@ -133,6 +133,7 @@
     &lt;Button Name="stopWebcam" X="85" Y="124" Width="150" Height="32" Alpha="255" Text="Detener Webcam" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
     &lt;Button Name="calibrate" X="10" Y="198" Width="80" Height="32" Alpha="255" Text="Calibrar" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
     &lt;Button Name="wifi" X="230" Y="198" Width="80" Height="32" Alpha="255" Text="Wifi" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;TextBlock Name="webcamstatus" X="100" Y="196" Width="120" Height="32" Alpha="255" Text="Webcam OFF" TextAlign="Center" TextVerticalAlign="Middle" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
   &lt;/Window&gt;
 &lt;/Glide&gt;</value>
     <comment>Main Glide Window</comment>

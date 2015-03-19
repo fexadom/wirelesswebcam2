@@ -55,6 +55,11 @@ namespace WirelessWebCam
                 Debug.Print("Habilitando webcam");
                 captureTimer.Start();
                 isWebCamOn = true;
+
+                TextBlock webcamstatus = (TextBlock)mainWindow.GetChildByName("webcamstatus");
+                webcamstatus.Text = "Webcam ON";
+                mainWindow.FillRect(webcamstatus.Rect);
+                webcamstatus.Invalidate();
             }
         }
 
@@ -65,6 +70,11 @@ namespace WirelessWebCam
                 Debug.Print("Deshabilitando webcam");
                 captureTimer.Stop();
                 isWebCamOn = false;
+
+                TextBlock webcamstatus = (TextBlock)mainWindow.GetChildByName("webcamstatus");
+                webcamstatus.Text = "Webcam OFF";
+                mainWindow.FillRect(webcamstatus.Rect);
+                webcamstatus.Invalidate();
             }
         }
 

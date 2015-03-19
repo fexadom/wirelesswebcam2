@@ -24,6 +24,9 @@ namespace WirelessWebCam
     // A delegate type for hooking up network down notifications.
     public delegate void NetworkDownEventHandler(String msg);
 
+    // A delegate type for hooking up network attempt notifications.
+    public delegate void NetworkAttemptEventHandler();
+
     public partial class Program
     {
         private static GHI.Glide.Display.Window wifiWindow;
@@ -71,8 +74,8 @@ namespace WirelessWebCam
             wifi = new WiFiConfiguration(wifiRS21);
             wifi.NetworkUp += wifi_NetworkUp;
             wifi.NetworkDown += wifi_NetworkDown;
+            wifi.NetworkAttempt += wifi_NetworkAttempt;
             initializeWifiWindow();
-            updateWifiWindow();
 
             //Calibration stuff
             calibrationWindow = new CalibrationWindow(false, false);
@@ -82,7 +85,7 @@ namespace WirelessWebCam
             cameraWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.cameraViewWindow));
             cameraWindow.TapEvent += cameraWindow_TapEvent;
             camera.BitmapStreamed += camera_BitmapStreamed;
-            captureTimer = new GT.Timer(5000, GT.Timer.BehaviorType.RunContinuously);
+            captureTimer = new GT.Timer(10000, GT.Timer.BehaviorType.RunContinuously);
             captureTimer.Tick += captureTimer_Tick;
 
             GlideTouch.Initialize();
@@ -159,10 +162,42 @@ namespace WirelessWebCam
             }
         }
 
+        void wifi_NetworkAttempt()
+        {
+            TextBlock connectedTo = (TextBlock)wifiWindow.GetChildByName("connectedto");
+            connectedTo.Text = "Conectando...";
+            connectedTo.FontColor = GHI.Glide.Colors.White;
+
+            if (Glide.MainWindow.Equals(wifiWindow))
+            {
+                wifiWindow.FillRect(connectedTo.Rect);
+                connectedTo.Invalidate();
+            }
+        }
+
         private void sendBitmapToCloud()
         {
-            HttpHelper.CreateHttpPostRequest("http://192.168.65.162:8080/uploadImage", POSTContent.CreateBinaryBasedContent(lastBitmap.GetBitmap()), "multipart/form-data").SendRequest();
-            Debug.Print("Imagen enviada");
+            try
+            {
+                POSTContent content = POSTContent.CreateBinaryBasedContent(lastBitmap.GetBitmap());
+                HttpRequest request = HttpHelper.CreateHttpPostRequest("http://200.126.23.246/uploadImage", content, "multipart/form-data");
+
+                request.SendRequest();
+                request.ResponseReceived += request_ResponseReceived;
+
+                lastBitmap.Dispose();
+                Debug.Print("Imagen enviada");
+            }
+            catch (System.ObjectDisposedException oe)
+            {
+                Debug.Print("Error in sendBitmapToCloud(): " + oe.Message);
+            }
+            
+        }
+
+        void request_ResponseReceived(HttpRequest sender, HttpResponse response)
+        {
+            Debug.Print("Response: "+response.StatusCode);
         }
     }
 }

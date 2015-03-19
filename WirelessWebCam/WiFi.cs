@@ -38,6 +38,10 @@ namespace WirelessWebCam
         // network is down.
         public event NetworkDownEventHandler NetworkDown;
 
+        // An event that clients can use to be notified whenever the
+        // the wifi is attempting to connect.
+        public event NetworkAttemptEventHandler NetworkAttempt;
+
         public WiFiConfiguration(Gadgeteer.Modules.GHIElectronics.WiFiRS21 wifiRS21)
         {
             connected = false;
@@ -86,7 +90,9 @@ namespace WirelessWebCam
 
         public void connect(WifiNetwork network)
         {
-
+            //Notify that the module will attempt to connect to a wifi network
+            NetworkAttempt();
+            
             if (wifiRS21.NetworkInterface.Opened)
                 wifiRS21.NetworkInterface.Close();
             if (!wifiRS21.NetworkInterface.Opened)
