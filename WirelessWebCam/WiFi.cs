@@ -106,13 +106,25 @@ namespace WirelessWebCam
                     wifiRS21.NetworkInterface.Join(network.Ssid, network.getPassword());
                 else
                     wifiRS21.NetworkInterface.Join(network.Ssid);
-            }catch(GHI.Networking.WiFiRS9110.JoinException e)
+            }
+            catch (GHI.Networking.WiFiRS9110.JoinException e)
             {
-                Debug.Print("Error de coneccion: "+e.Message);
+                Debug.Print("Error de coneccion: " + e.Message);
                 connected = false;
                 NetworkDown("Error de coneccion");
             }
-            
+            catch (GHI.Networking.WiFiRS9110.HardwareFailureException e)
+            {
+                Debug.Print("Error de coneccion: " + e.Message);
+                connected = false;
+                NetworkDown("Error de coneccion");
+            }
+            catch (System.InvalidOperationException e)
+            {
+                Debug.Print("Error de coneccion: " + e.Message);
+                connected = false;
+                NetworkDown("Error de coneccion");
+            }
 
             this.network = network;
         }

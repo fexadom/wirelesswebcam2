@@ -157,4 +157,11 @@
 &lt;/Glide&gt;</value>
     <comment>Glide window for wifi configuration</comment>
   </data>
+  <data name="qrWindow" xml:space="preserve">
+    <value>&lt;Glide Version="1.0.7"&gt;
+  &lt;Window Name="cameraView" Width="320" Height="240" BackColor="000000"&gt;
+    &lt;TextBlock Name="tapMessage" X="10" Y="104" Width="300" Height="32" Alpha="255" Text="Tap para detener webcam..." TextAlign="Center" TextVerticalAlign="Top" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
+  &lt;/Window&gt;
+&lt;/Glide&gt;</value>
+  </data>
 </root>

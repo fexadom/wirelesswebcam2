@@ -60,12 +60,14 @@ namespace WirelessWebCam
                 webcamstatus.Text = "Webcam ON";
                 mainWindow.FillRect(webcamstatus.Rect);
                 webcamstatus.Invalidate();
+
+                showQR();
             }
         }
 
         void stopWebcamButton_TapEvent(object sender)
         {
-            if (wifi.isConnected() && isWebCamOn)
+            if (isWebCamOn)
             {
                 Debug.Print("Deshabilitando webcam");
                 captureTimer.Stop();

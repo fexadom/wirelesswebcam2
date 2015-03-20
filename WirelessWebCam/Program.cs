@@ -32,6 +32,7 @@ namespace WirelessWebCam
         private static GHI.Glide.Display.Window wifiWindow;
         private static GHI.Glide.Display.Window mainWindow;
         private static GHI.Glide.Display.Window cameraWindow;
+        private static GHI.Glide.Display.Window qrWindow;
         private static CalibrationWindow calibrationWindow;
         private WiFiConfiguration wifi;
         private List wifiNetworksList;
@@ -77,6 +78,10 @@ namespace WirelessWebCam
             wifi.NetworkAttempt += wifi_NetworkAttempt;
             initializeWifiWindow();
 
+            //QR stuf
+            qrWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.qrWindow));
+            qrWindow.TapEvent += qrWindow_TapEvent;
+
             //Calibration stuff
             calibrationWindow = new CalibrationWindow(false, false);
             calibrationWindow.CloseEvent += OnCloseCalibrar;
@@ -85,7 +90,7 @@ namespace WirelessWebCam
             cameraWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.cameraViewWindow));
             cameraWindow.TapEvent += cameraWindow_TapEvent;
             camera.BitmapStreamed += camera_BitmapStreamed;
-            captureTimer = new GT.Timer(10000, GT.Timer.BehaviorType.RunContinuously);
+            captureTimer = new GT.Timer(5000, GT.Timer.BehaviorType.RunContinuously);
             captureTimer.Tick += captureTimer_Tick;
 
             GlideTouch.Initialize();
@@ -114,6 +119,21 @@ namespace WirelessWebCam
             isStreaming = false;
             camera.StopStreaming();
             displayTE35.SimpleGraphics.Clear();
+            Glide.MainWindow = mainWindow;
+        }
+
+        void qrWindow_TapEvent(object sender)
+        {
+            if (isWebCamOn)
+            {
+                Debug.Print("Deshabilitando webcam");
+                captureTimer.Stop();
+                isWebCamOn = false;
+                TextBlock webcamstatus = (TextBlock)mainWindow.GetChildByName("webcamstatus");
+                webcamstatus.Text = "Webcam OFF";
+                mainWindow.FillRect(webcamstatus.Rect);
+            }
+
             Glide.MainWindow = mainWindow;
         }
 
@@ -198,6 +218,35 @@ namespace WirelessWebCam
         void request_ResponseReceived(HttpRequest sender, HttpResponse response)
         {
             Debug.Print("Response: "+response.StatusCode);
+        }
+
+        public void showQR()
+        {
+            Glide.MainWindow = qrWindow;
+        
+            var qrrequest = WebClient.GetFromWeb("http://200.126.23.246/showqr");
+            qrrequest.ResponseReceived += qrrequest_ResponseReceived;
+            qrrequest.SendRequest();
+        }
+
+        void qrrequest_ResponseReceived(HttpRequest sender, HttpResponse response)
+        {
+            if (response.StatusCode == "200")
+            {
+                Debug.Print("Response OK");
+                //This only works if the bitmap is the
+                //same size as the screen it's flushing to
+
+                if (isWebCamOn)
+                {
+                    displayTE35.SimpleGraphics.DisplayImage(response.Picture.MakeBitmap(),0,0);
+                    displayTE35.SimpleGraphics.DisplayText("Webcam ON", Resources.GetFont(Resources.FontResources.NinaB), GT.Color.Black, 120, 220);
+                }
+            }
+            else
+            {
+                Debug.Print("QR Request failed with status code " + response.StatusCode);
+            }
         }
     }
 }

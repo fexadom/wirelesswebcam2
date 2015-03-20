@@ -39,6 +39,7 @@ namespace WirelessWebCam
             cameraViewWindow = -10018,
             wifiWindow = -5636,
             mainWindow = 5469,
+            qrWindow = 18404,
         }
         [System.SerializableAttribute()]
         internal enum FontResources : short
