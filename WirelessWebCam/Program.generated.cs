@@ -24,6 +24,9 @@ namespace WirelessWebCam {
         /// <summary>The WiFi RS21 module using socket 9 of the mainboard.</summary>
         private Gadgeteer.Modules.GHIElectronics.WiFiRS21 wifiRS21;
         
+        /// <summary>The UC Battery 4xAA module using socket 1 of the mainboard.</summary>
+        private Gadgeteer.Modules.GHIElectronics.UCBattery4xAA ucBattery4xAA;
+        
         /// <summary>This property provides access to the Mainboard API. This is normally not necessary for an end user program.</summary>
         protected new static GHIElectronics.Gadgeteer.FEZSpider Mainboard {
             get {
@@ -49,6 +52,7 @@ namespace WirelessWebCam {
             this.displayTE35 = new GTM.GHIElectronics.DisplayTE35(14, 13, 12, 10);
             this.camera = new GTM.GHIElectronics.Camera(3);
             this.wifiRS21 = new GTM.GHIElectronics.WiFiRS21(9);
+            this.ucBattery4xAA = new GTM.GHIElectronics.UCBattery4xAA(1);
         }
     }
 }

@@ -93,6 +93,9 @@ namespace WirelessWebCam
             captureTimer = new GT.Timer(5000, GT.Timer.BehaviorType.RunContinuously);
             captureTimer.Tick += captureTimer_Tick;
 
+            //Battery stuff
+            ucBattery4xAA.DebugPrintEnabled = true;
+
             GlideTouch.Initialize();
 
             Glide.MainWindow = mainWindow;
