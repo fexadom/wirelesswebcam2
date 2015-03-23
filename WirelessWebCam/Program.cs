@@ -27,20 +27,43 @@ namespace WirelessWebCam
     // A delegate type for hooking up network attempt notifications.
     public delegate void NetworkAttemptEventHandler();
 
+    //System state enumaration
+    enum State { Main, Camera, Webcam, Wifi, Calibrar };
+
     public partial class Program
     {
+        /// <summary>The URL of the remote server.</summary>
+        const String SERVER_URL = "200.126.23.246";
+        /// <summary>The port where the remote server listens to REST requests.</summary>
+        const String SERVER_PORT = "80";
+
+        //All main  GLIDE GUI windows used in this application
         private static GHI.Glide.Display.Window wifiWindow;
         private static GHI.Glide.Display.Window mainWindow;
         private static GHI.Glide.Display.Window cameraWindow;
-        private static GHI.Glide.Display.Window qrWindow;
+        private static GHI.Glide.Display.Window cameraBackgroundWindow;
+        private static GHI.Glide.Display.Window pictureWindow;
+        private static GHI.Glide.Display.Window webcamWindow;
+        private static GHI.Glide.Display.Window qrBackgroundWindow;
+        private static GHI.Glide.Display.Window sleepWindow;
+
+        //The Glide calibration application
         private static CalibrationWindow calibrationWindow;
+
+        /// <summary>The wifi encapsulation object.</summary>
         private WiFiConfiguration wifi;
-        private List wifiNetworksList;
+
+        /// <summary>Indicates whehter the camera is streaming video to the display.</summary>
         private bool isStreaming;
+
+        /// <summary>Indicates whehter the webcam is ON.</summary>
         private bool isWebCamOn;
-        private bool toggleTakePicture;
-        private GT.Timer captureTimer;
-        Bitmap lastBitmap;
+
+        /// <summary>The last bitmap returned by the camera.</summary>
+        Bitmap currentBitmap;
+
+        /// <summary>The current system state.</summary>
+        State systemState;
 
         // This method is run when the mainboard is powered up or reset.   
         void ProgramStarted()
@@ -62,13 +85,18 @@ namespace WirelessWebCam
             // Use Debug.Print to show messages in Visual Studio's "Output" window during debugging.
             Debug.Print("Program Started");
 
+            currentBitmap = new Bitmap(camera.CurrentPictureResolution.Width, camera.CurrentPictureResolution.Height);
+
             isStreaming = false;
             isWebCamOn = false;
-            toggleTakePicture = true;
 
             //Main window stuff
             mainWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.mainWindow));
             initializeMainWindow();
+
+            //Webcam stuff
+            webcamWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.webcamWindow));
+            initializeWebcamWindow();
 
             // Wifi Stuff
             wifiWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.wifiWindow));
@@ -79,136 +107,210 @@ namespace WirelessWebCam
             initializeWifiWindow();
 
             //QR stuf
-            qrWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.qrWindow));
-            qrWindow.TapEvent += qrWindow_TapEvent;
+            qrBackgroundWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.qrBackgroundWindow));
+            qrBackgroundWindow.TapEvent += qrWindow_TapEvent;
 
             //Calibration stuff
             calibrationWindow = new CalibrationWindow(false, false);
             calibrationWindow.CloseEvent += OnCloseCalibrar;
 
             //Camera stuff
-            cameraWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.cameraViewWindow));
-            cameraWindow.TapEvent += cameraWindow_TapEvent;
-            camera.BitmapStreamed += camera_BitmapStreamed;
-            captureTimer = new GT.Timer(5000, GT.Timer.BehaviorType.RunContinuously);
-            captureTimer.Tick += captureTimer_Tick;
+            cameraWindow = GlideLoader.LoadWindow(Resources.GetString(Resources.StringResources.cameraWindow));
+            initializeCameraWindow();
 
+            //Set bitmap streamed callback, used by camera mode and webcam mode
+            camera.BitmapStreamed += camera_BitmapStreamed;
+            
             //Battery stuff
             ucBattery4xAA.DebugPrintEnabled = true;
 
             GlideTouch.Initialize();
 
-            Glide.MainWindow = mainWindow;
-
-            
+            switchState(State.Main);
         }
 
-        void captureTimer_Tick(GT.Timer timer)
+        /// <summary>State switch logic.</summary>
+        private void switchState(State s)
         {
-            Debug.Print("Tick...");
-
-            if (toggleTakePicture)
-                camera.StartStreaming();
-            else
+            switch (s)
             {
-                sendBitmapToCloud();
+                case State.Main:
+                    systemState = s;
+                    Glide.MainWindow = mainWindow;
+                    break;
+                case State.Camera:
+                    systemState = s;
+                    Glide.MainWindow = cameraWindow;
+                    break;
+                case State.Webcam:
+                    systemState = s;
+                    Glide.MainWindow = webcamWindow;
+                    break;
+                case State.Wifi:
+                    systemState = s;
+                    Glide.MainWindow = wifiWindow;
+                    updateWifiWindow();
+                    break;
+                case State.Calibrar:
+                    systemState = s;
+                    Glide.MainWindow = calibrationWindow;
+                    break;
+                default:
+                    systemState = State.Main;
+                    Glide.MainWindow = mainWindow;
+                    break;
             }
-
-            toggleTakePicture = !toggleTakePicture;
         }
 
-        void cameraWindow_TapEvent(object sender)
-        {
-            isStreaming = false;
-            camera.StopStreaming();
-            displayTE35.SimpleGraphics.Clear();
-            Glide.MainWindow = mainWindow;
-        }
-
+        /// <summary>Indicates what to do when the QR window is tapped.</summary>
         void qrWindow_TapEvent(object sender)
         {
-            if (isWebCamOn)
+            switch (systemState)
             {
-                Debug.Print("Deshabilitando webcam");
-                captureTimer.Stop();
-                isWebCamOn = false;
-                TextBlock webcamstatus = (TextBlock)mainWindow.GetChildByName("webcamstatus");
-                webcamstatus.Text = "Webcam OFF";
-                mainWindow.FillRect(webcamstatus.Rect);
+                case State.Camera:
+                    switchState(systemState);
+                    break;
+                case State.Webcam:
+                    switchState(systemState);
+                    break;
+                default:
+                    switchState(State.Main);
+                    break;
             }
-
-            Glide.MainWindow = mainWindow;
         }
 
+        /// <summary>Bitmap streamed callback, depending on the system state the device sends the bitmap to the display.</summary>
         void camera_BitmapStreamed(Camera sender, Bitmap e)
         {
-            if (isStreaming)
-                displayTE35.SimpleGraphics.DisplayImage(e, 0, 0);
-
-            if (isWebCamOn)
+            switch (systemState)
             {
-                Debug.Print("Saving bitmap");
-                camera.StopStreaming();
-                lastBitmap = e;
+                case State.Camera:
+                    if(isStreaming)
+                        displayTE35.SimpleGraphics.DisplayImage(e, 0, 0);
+                    break;
+
+                case State.Webcam:
+                    camera.StopStreaming();
+                    break;
+
+                default:
+                    break;
             }
         }
 
         private void OnCloseCalibrar(object sender)
         {
-            Glide.MainWindow = mainWindow;
+            switchState(State.Main);
         }
 
+        /// <summary>Updates GUI in case of network down event.</summary>
         void wifi_NetworkDown(String msg)
         {
-            TextBlock connectedTo = (TextBlock)wifiWindow.GetChildByName("connectedto");
-            connectedTo.Text = msg;
-            connectedTo.FontColor = GHI.Glide.Colors.Red;
+            TextBlock connectedToText = (TextBlock)wifiWindow.GetChildByName("connectedto");
+            TextBlock wifiStatusMainText = (TextBlock)mainWindow.GetChildByName("wifistatus");
+            TextBlock wifiStatusCameraText = (TextBlock)cameraWindow.GetChildByName("wifistatus");
+            TextBlock wifiStatusWebcamText = (TextBlock)webcamWindow.GetChildByName("wifistatus");
 
-            if (Glide.MainWindow.Equals(wifiWindow))
+            connectedToText.Text = msg;
+            connectedToText.FontColor = GHI.Glide.Colors.Red;
+
+            wifiStatusMainText.Text = "WIFI: OFF";
+            wifiStatusMainText.FontColor = GHI.Glide.Colors.Red;
+
+            wifiStatusCameraText.Text = "WIFI: OFF";
+            wifiStatusCameraText.FontColor = GHI.Glide.Colors.Red;
+
+            wifiStatusWebcamText.Text = "WIFI: OFF";
+            wifiStatusWebcamText.FontColor = GHI.Glide.Colors.Red;
+
+            switch (systemState)
             {
-                wifiWindow.FillRect(connectedTo.Rect);
-                connectedTo.Invalidate();
+                case State.Main:
+                    cameraWindow.FillRect(wifiStatusMainText.Rect);
+                    wifiStatusMainText.Invalidate();
+                    break;
+                case State.Camera:
+                    cameraWindow.FillRect(wifiStatusCameraText.Rect);
+                    wifiStatusCameraText.Invalidate();
+                    break;
+                case State.Webcam:
+                    webcamWindow.FillRect(wifiStatusWebcamText.Rect);
+                    wifiStatusWebcamText.Invalidate();
+                    break;
+                case State.Wifi:
+                    wifiWindow.FillRect(connectedToText.Rect);
+                    connectedToText.Invalidate();
+                    break;
             }
 
         }
 
+        /// <summary>Updates GUI in case of network up event.</summary>
         void wifi_NetworkUp(WifiNetwork network)
         {
-            TextBlock connectedTo = (TextBlock)wifiWindow.GetChildByName("connectedto");
-            connectedTo.Text = "Conectado a: " + network.getLabel();
-            connectedTo.FontColor = GHI.Glide.Colors.Green;
+            TextBlock connectedToText = (TextBlock)wifiWindow.GetChildByName("connectedto");
+            TextBlock wifiStatusMainText = (TextBlock)mainWindow.GetChildByName("wifistatus");
+            TextBlock wifiStatusCameraText = (TextBlock)cameraWindow.GetChildByName("wifistatus");
+            TextBlock wifiStatusWebcamText = (TextBlock)webcamWindow.GetChildByName("wifistatus");
 
-            if (Glide.MainWindow.Equals(wifiWindow))
+            connectedToText.Text = "Conectado a: " + network.getLabel();
+            connectedToText.FontColor = GHI.Glide.Colors.Green;
+
+            wifiStatusMainText.Text = "WIFI: ON";
+            wifiStatusMainText.FontColor = GHI.Glide.Colors.White;
+
+            wifiStatusCameraText.Text = "WIFI: ON";
+            wifiStatusCameraText.FontColor = GHI.Glide.Colors.White;
+
+            wifiStatusWebcamText.Text = "WIFI: ON";
+            wifiStatusWebcamText.FontColor = GHI.Glide.Colors.White;
+
+            switch (systemState)
             {
-                wifiWindow.FillRect(connectedTo.Rect);
-                connectedTo.Invalidate();
+                case State.Main:
+                    cameraWindow.FillRect(wifiStatusMainText.Rect);
+                    wifiStatusMainText.Invalidate();
+                    break;
+                case State.Camera:
+                    cameraWindow.FillRect(wifiStatusCameraText.Rect);
+                    wifiStatusCameraText.Invalidate();
+                    break;
+                case State.Webcam:
+                    webcamWindow.FillRect(wifiStatusWebcamText.Rect);
+                    wifiStatusWebcamText.Invalidate();
+                    break;
+                case State.Wifi:
+                    wifiWindow.FillRect(connectedToText.Rect);
+                    connectedToText.Invalidate();
+                    break;
             }
         }
 
+        /// <summary>Updates GUI in case of network attempt event.</summary>
         void wifi_NetworkAttempt()
         {
             TextBlock connectedTo = (TextBlock)wifiWindow.GetChildByName("connectedto");
             connectedTo.Text = "Conectando...";
             connectedTo.FontColor = GHI.Glide.Colors.White;
 
-            if (Glide.MainWindow.Equals(wifiWindow))
+            if (systemState == State.Wifi)
             {
                 wifiWindow.FillRect(connectedTo.Rect);
                 connectedTo.Invalidate();
             }
         }
 
+        /// <summary>Sends bitmap to remote server using a POST request.</summary>
         private void sendBitmapToCloud()
         {
             try
             {
-                POSTContent content = POSTContent.CreateBinaryBasedContent(lastBitmap.GetBitmap());
-                HttpRequest request = HttpHelper.CreateHttpPostRequest("http://200.126.23.246/uploadImage", content, "multipart/form-data");
+                POSTContent content = POSTContent.CreateBinaryBasedContent(currentBitmap.GetBitmap());
+                HttpRequest request = HttpHelper.CreateHttpPostRequest("http://"+SERVER_URL+":"+SERVER_PORT+"/uploadImage", content, "multipart/form-data");
 
                 request.SendRequest();
                 request.ResponseReceived += request_ResponseReceived;
 
-                lastBitmap.Dispose();
                 Debug.Print("Imagen enviada");
             }
             catch (System.ObjectDisposedException oe)
@@ -218,20 +320,24 @@ namespace WirelessWebCam
             
         }
 
+        /// <summary>Callback for bitmap POST request.</summary>
         void request_ResponseReceived(HttpRequest sender, HttpResponse response)
         {
             Debug.Print("Response: "+response.StatusCode);
         }
 
+        /// <summary>Sends a QR code image file request to remote server.</summary>
         public void showQR()
         {
-            Glide.MainWindow = qrWindow;
-        
-            var qrrequest = WebClient.GetFromWeb("http://200.126.23.246/showqr");
+            Glide.MainWindow = qrBackgroundWindow;
+
+            var qrrequest = WebClient.GetFromWeb("http://" + SERVER_URL + ":" + SERVER_PORT + "/showqr");
             qrrequest.ResponseReceived += qrrequest_ResponseReceived;
             qrrequest.SendRequest();
         }
 
+
+        /// <summary>Fetches QR code image file from remote server and shows it in the display</summary>
         void qrrequest_ResponseReceived(HttpRequest sender, HttpResponse response)
         {
             if (response.StatusCode == "200")
@@ -239,12 +345,8 @@ namespace WirelessWebCam
                 Debug.Print("Response OK");
                 //This only works if the bitmap is the
                 //same size as the screen it's flushing to
-
-                if (isWebCamOn)
-                {
-                    displayTE35.SimpleGraphics.DisplayImage(response.Picture.MakeBitmap(),0,0);
-                    displayTE35.SimpleGraphics.DisplayText("Webcam ON", Resources.GetFont(Resources.FontResources.NinaB), GT.Color.Black, 120, 220);
-                }
+                displayTE35.SimpleGraphics.DisplayImage(response.Picture.MakeBitmap(),0,0);
+                displayTE35.SimpleGraphics.DisplayText("Leer QR para descargar", Resources.GetFont(Resources.FontResources.NinaB), GT.Color.Black, 80, 220);
             }
             else
             {

@@ -117,10 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="cameraViewWindow" xml:space="preserve">
+  <data name="cameraBackgroundWindow" xml:space="preserve">
     <value>&lt;Glide Version="1.0.7"&gt;
   &lt;Window Name="cameraView" Width="320" Height="240" BackColor="000000"&gt;
-    &lt;TextBlock Name="tapMessage" X="60" Y="104" Width="200" Height="32" Alpha="255" Text="Tap para salir..." TextAlign="Center" TextVerticalAlign="Top" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
+    &lt;TextBlock Name="tapMessage" X="60" Y="104" Width="200" Height="32" Alpha="255" Text="Tap para foto..." TextAlign="Center" TextVerticalAlign="Top" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
   &lt;/Window&gt;
 &lt;/Glide&gt;</value>
     <comment>Camera view window</comment>
@@ -128,12 +128,11 @@
   <data name="mainWindow" xml:space="preserve">
     <value>&lt;Glide Version="1.0.7"&gt;
   &lt;Window Name="mainWindow" Width="320" Height="240" BackColor="2C3C96"&gt;
-    &lt;Button Name="viewStreaming" X="85" Y="20" Width="150" Height="32" Alpha="255" Text="Ver Camara" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
-    &lt;Button Name="startWebcam" X="85" Y="72" Width="150" Height="32" Alpha="255" Text="Iniciar Webcam" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
-    &lt;Button Name="stopWebcam" X="85" Y="124" Width="150" Height="32" Alpha="255" Text="Detener Webcam" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;Button Name="cameraMode" X="85" Y="72" Width="150" Height="32" Alpha="255" Text="Modo Camara" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;Button Name="webcamMode" X="85" Y="124" Width="150" Height="32" Alpha="255" Text="Modo Webcam" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
     &lt;Button Name="calibrate" X="10" Y="198" Width="80" Height="32" Alpha="255" Text="Calibrar" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
     &lt;Button Name="wifi" X="230" Y="198" Width="80" Height="32" Alpha="255" Text="Wifi" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
-    &lt;TextBlock Name="webcamstatus" X="100" Y="196" Width="120" Height="32" Alpha="255" Text="Webcam OFF" TextAlign="Center" TextVerticalAlign="Middle" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
+    &lt;TextBlock Name="wifistatus" X="10" Y="0" Width="120" Height="32" Alpha="255" Text="WIFI: OFF" TextAlign="Left" TextVerticalAlign="Middle" Font="5" FontColor="FF0000" BackColor="000000" ShowBackColor="False"/&gt;
   &lt;/Window&gt;
 &lt;/Glide&gt;</value>
     <comment>Main Glide Window</comment>
@@ -151,17 +150,57 @@
     &lt;Dropdown Name="drop" X="10" Y="60" Width="300" Height="32" Alpha="255" Text="Seleccione una red:" Font="4" FontColor="000000"/&gt;
     &lt;Button Name="connect" X="50" Y="120" Width="100" Height="32" Alpha="255" Text="Conectar" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
     &lt;TextBlock Name="connectedto" X="10" Y="10" Width="300" Height="32" Alpha="255" Text="Desconectado" TextAlign="Left" TextVerticalAlign="Top" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
-    &lt;Button Name="backWiFi" X="25" Y="195" Width="100" Height="32" Alpha="255" Text="&amp;lt; Regresar" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;Button Name="back" X="25" Y="195" Width="100" Height="32" Alpha="255" Text="&amp;lt; Regresar" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
     &lt;Button Name="disconnect" X="170" Y="120" Width="100" Height="32" Alpha="255" Text="Desconectar" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
   &lt;/Window&gt;
 &lt;/Glide&gt;</value>
     <comment>Glide window for wifi configuration</comment>
   </data>
-  <data name="qrWindow" xml:space="preserve">
+  <data name="qrBackgroundWindow" xml:space="preserve">
     <value>&lt;Glide Version="1.0.7"&gt;
   &lt;Window Name="cameraView" Width="320" Height="240" BackColor="000000"&gt;
-    &lt;TextBlock Name="tapMessage" X="10" Y="104" Width="300" Height="32" Alpha="255" Text="Tap para detener webcam..." TextAlign="Center" TextVerticalAlign="Top" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
+    &lt;TextBlock Name="tapMessage" X="10" Y="104" Width="300" Height="32" Alpha="255" Text="Tap para regresar..." TextAlign="Center" TextVerticalAlign="Top" Font="4" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
   &lt;/Window&gt;
 &lt;/Glide&gt;</value>
+  </data>
+  <data name="cameraWindow" xml:space="preserve">
+    <value>&lt;Glide Version="1.0.7"&gt;
+  &lt;Window Name="cameraWindow" Width="320" Height="240" BackColor="2C3C96"&gt;
+    &lt;Button Name="takepicture" X="85" Y="72" Width="150" Height="32" Alpha="255" Text="Tomar Foto" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;Button Name="back" X="25" Y="195" Width="100" Height="32" Alpha="255" Text="&amp;lt; Regresar" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;TextBlock Name="wifistatus" X="10" Y="0" Width="120" Height="32" Alpha="255" Text="WIFI: OFF" TextAlign="Left" TextVerticalAlign="Middle" Font="5" FontColor="FF0000" BackColor="000000" ShowBackColor="False"/&gt;
+    &lt;TextBlock Name="camaralabel" X="60" Y="30" Width="200" Height="32" Alpha="255" Text="CAMARA" TextAlign="Center" TextVerticalAlign="Top" Font="6" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
+  &lt;/Window&gt;
+&lt;/Glide&gt;</value>
+  </data>
+  <data name="webcamWindow" xml:space="preserve">
+    <value>&lt;Glide Version="1.0.7"&gt;
+  &lt;Window Name="webcamWindow" Width="320" Height="240" BackColor="2C3C96"&gt;
+    &lt;Button Name="viewQR" X="70" Y="108" Width="180" Height="32" Alpha="255" Text="Ver QR" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;Button Name="sleep" X="70" Y="150" Width="180" Height="32" Alpha="255" Text="Dormir" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;Button Name="back" X="25" Y="195" Width="100" Height="32" Alpha="255" Text="&amp;lt; Regresar" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;TextBlock Name="wifistatus" X="10" Y="0" Width="120" Height="32" Alpha="255" Text="WIFI: OFF" TextAlign="Left" TextVerticalAlign="Middle" Font="5" FontColor="FF0000" BackColor="000000" ShowBackColor="False"/&gt;
+    &lt;TextBlock Name="webcamlabel" X="60" Y="30" Width="200" Height="32" Alpha="255" Text="WEBCAM OFF" TextAlign="Center" TextVerticalAlign="Top" Font="6" FontColor="FFFFFF" BackColor="000000" ShowBackColor="False"/&gt;
+    &lt;Button Name="startwebcam" X="70" Y="67" Width="80" Height="32" Alpha="255" Text="Start" Font="4" FontColor="20A832" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+    &lt;Button Name="stopwebcam" X="170" Y="67" Width="80" Height="32" Alpha="255" Text="Stop" Font="4" FontColor="CC0000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+  &lt;/Window&gt;
+&lt;/Glide&gt;</value>
+  </data>
+  <data name="pictureWindow" xml:space="preserve">
+    <value>&lt;Glide Version="1.0.7"&gt;
+  &lt;Window Name="pictureWindow" Width="320" Height="240" BackColor="FFFFFF"&gt;
+    &lt;Image Name="pictureholder" X="0" Y="0" Width="320" Height="240" Alpha="255"/&gt;
+    &lt;Button Name="showqr" X="85" Y="198" Width="150" Height="32" Alpha="255" Text="Descargar la foto" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;&lt;Button Name="back" X="10" Y="198" Width="32" Height="32" Alpha="255" Text="&amp;lt;&amp;lt;" Font="4" FontColor="000000" DisabledFontColor="808080" TintColor="000000" TintAmount="0"/&gt;
+  &lt;/Window&gt;
+&lt;/Glide&gt;</value>
+    <comment>Glide window for showing picture</comment>
+  </data>
+  <data name="sleepWindow" xml:space="preserve">
+    <value>&lt;Glide Version="1.0.7"&gt;
+  &lt;Window Name="sleepWindow" Width="320" Height="240" BackColor="0"&gt;
+    &lt;TextBlock Name="dummy" X="0" Y="0" Width="100" Height="32" Alpha="255" Text="" TextAlign="Left" TextVerticalAlign="Top" Font="4" FontColor="0" BackColor="000000" ShowBackColor="False"/&gt;
+  &lt;/Window&gt;
+&lt;/Glide&gt;</value>
+    <comment>Black background for sleeping webcam</comment>
   </data>
 </root>

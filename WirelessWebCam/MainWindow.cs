@@ -20,16 +20,14 @@ namespace WirelessWebCam
 {
     public partial class Program
     {
+        /// <summary>Initializes Main window elements.</summary>
         private void initializeMainWindow()
         {
-            Button viewStreamingButton = (Button)mainWindow.GetChildByName("viewStreaming");
-            viewStreamingButton.TapEvent += viewStreamingButton_TapEvent;
+            Button cameraModeButton = (Button)mainWindow.GetChildByName("cameraMode");
+            cameraModeButton.TapEvent += cameraModeButton_TapEvent;
 
-            Button startWebcamButton = (Button)mainWindow.GetChildByName("startWebcam");
-            startWebcamButton.TapEvent += startWebcamButton_TapEvent;
-
-            Button stopWebcamButton = (Button)mainWindow.GetChildByName("stopWebcam");
-            stopWebcamButton.TapEvent += stopWebcamButton_TapEvent;
+            Button webcamModeButton = (Button)mainWindow.GetChildByName("webcamMode");
+            webcamModeButton.TapEvent += webcamModeButton_TapEvent;
 
             Button calibrateButton = (Button)mainWindow.GetChildByName("calibrate");
             calibrateButton.TapEvent += calibrateButton_TapEvent;
@@ -38,57 +36,28 @@ namespace WirelessWebCam
             wifiButton.TapEvent += wifiButton_TapEvent;
         }
 
-        void viewStreamingButton_TapEvent(object sender)
+        void cameraModeButton_TapEvent(object sender)
         {
-            Debug.Print("View Streaming");
-
-            isStreaming = true;
-            camera.StartStreaming();
-
-            Glide.MainWindow = cameraWindow;
+            Debug.Print("Camera mode");
+            switchState(State.Camera);
         }
 
-        void startWebcamButton_TapEvent(object sender)
+        void webcamModeButton_TapEvent(object sender)
         {
-            if (wifi.isConnected() && !isWebCamOn)
-            {
-                Debug.Print("Habilitando webcam");
-                captureTimer.Start();
-                isWebCamOn = true;
-
-                TextBlock webcamstatus = (TextBlock)mainWindow.GetChildByName("webcamstatus");
-                webcamstatus.Text = "Webcam ON";
-                mainWindow.FillRect(webcamstatus.Rect);
-                webcamstatus.Invalidate();
-
-                showQR();
-            }
-        }
-
-        void stopWebcamButton_TapEvent(object sender)
-        {
-            if (isWebCamOn)
-            {
-                Debug.Print("Deshabilitando webcam");
-                captureTimer.Stop();
-                isWebCamOn = false;
-
-                TextBlock webcamstatus = (TextBlock)mainWindow.GetChildByName("webcamstatus");
-                webcamstatus.Text = "Webcam OFF";
-                mainWindow.FillRect(webcamstatus.Rect);
-                webcamstatus.Invalidate();
-            }
+            Debug.Print("Webcam mode");
+            switchState(State.Webcam);
         }
 
         void calibrateButton_TapEvent(object sender)
         {
-            Glide.MainWindow = calibrationWindow;
+            Debug.Print("Calibration mode");
+            switchState(State.Calibrar);
         }
 
         void wifiButton_TapEvent(object sender)
         {
-            Glide.MainWindow = wifiWindow;
-            updateWifiWindow();
+            Debug.Print("Wifi mode");
+            switchState(State.Wifi);
         }
     }
 }

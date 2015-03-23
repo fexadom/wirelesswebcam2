@@ -20,6 +20,10 @@ namespace WirelessWebCam
 {
     public partial class Program
     {
+        /// <summary>List of all wifi networks in range.</summary>
+        private List wifiNetworksList;
+
+        /// <summary>Initializes all wifi functionality elements.</summary>
         private void initializeWifiWindow()
         {
             Dropdown dd = (Dropdown)wifiWindow.GetChildByName("drop");
@@ -32,10 +36,11 @@ namespace WirelessWebCam
             Button disconnectWiFi = (Button)wifiWindow.GetChildByName("disconnect");
             disconnectWiFi.TapEvent += disconnectWiFi_TapEvent;
 
-            Button backWiFi = (Button)wifiWindow.GetChildByName("backWiFi");
+            Button backWiFi = (Button)wifiWindow.GetChildByName("back");
             backWiFi.TapEvent += backWiFi_TapEvent;
         }
 
+        /// <summary>Rescans wifi networks and updates the GUI.</summary>
         private void updateWifiWindow()
         {
             if (!wifi.isConnected())
@@ -62,9 +67,10 @@ namespace WirelessWebCam
 
         void backWiFi_TapEvent(object sender)
         {
-            Glide.MainWindow = mainWindow;
+            switchState(State.Main);
         }
 
+        /// <summary>Display a list with all nearby wifi networks.</summary>
         void connectWiFi_TapEvent(object sender)
         {
             if (!wifi.isConnected())
