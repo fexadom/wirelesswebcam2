@@ -21,7 +21,7 @@ namespace WirelessWebCam
     public partial class Program
     {
         /// <summary>The time period in ms used by the timer to either take a picture or send it to the remote server.</summary>
-        const int WEBCAM_PICTURE_PERIOD = 5000;
+        const int WEBCAM_PICTURE_PERIOD = 4000;
 
         /// <summary>While the wecam is ON, this boolean toggles between taking a picture and sending it to the remote server.</summary>
         private bool toggleTakePicture;

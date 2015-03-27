@@ -35,7 +35,7 @@ namespace WirelessWebCam
         /// <summary>The URL of the remote server.</summary>
         const String SERVER_URL = "200.126.23.246";
         /// <summary>The port where the remote server listens to REST requests.</summary>
-        const String SERVER_PORT = "80";
+        const String SERVER_PORT = "8080";
 
         //All main  GLIDE GUI windows used in this application
         private static GHI.Glide.Display.Window wifiWindow;
@@ -85,6 +85,7 @@ namespace WirelessWebCam
             // Use Debug.Print to show messages in Visual Studio's "Output" window during debugging.
             Debug.Print("Program Started");
 
+            //Initialize global bitmap buffer with the camera resolution
             currentBitmap = new Bitmap(camera.CurrentPictureResolution.Width, camera.CurrentPictureResolution.Height);
 
             isStreaming = false;
