@@ -74,9 +74,7 @@ namespace WirelessWebCam
                 networks = new WifiNetwork[parameters.Length];
                 networks[0] = new WifiNetwork();
                 for (int i = 0; i < parameters.Length; i++)
-                {
-                    networks[i] = new WifiNetwork(parameters[i].Ssid, parameters[i].Rssi);
-                }
+                    networks[i] = new WifiNetwork(parameters[i]);
             }
             else
             {
@@ -102,10 +100,19 @@ namespace WirelessWebCam
 
             try
             {
-                if (network.isKnown())
-                    wifiRS21.NetworkInterface.Join(network.Ssid, network.getPassword());
+                if (network.isKnown)
+                {
+                    Debug.Print("Network: " + network.parameters.Ssid + " with password: " + network.parameters.Key);
+                    try {
+                        wifiRS21.NetworkInterface.Join(network.parameters.Ssid, network.parameters.Key);
+                    }catch(GHI.Networking.WiFiRS9110.JoinException e)
+                    {
+                        Debug.Print("Exception: " + e.Message + " retrying...");
+                        wifiRS21.NetworkInterface.Join(network.parameters);
+                    }
+                }
                 else
-                    wifiRS21.NetworkInterface.Join(network.Ssid);
+                    wifiRS21.NetworkInterface.Join(network.parameters.Ssid);
             }
             catch (GHI.Networking.WiFiRS9110.JoinException e)
             {
@@ -169,24 +176,34 @@ namespace WirelessWebCam
     *******************************************************************************************/
     public class WifiNetwork
     {
-        public String Ssid { get; private set; }
-        public int Rssi { get; private set; }
+        public GHI.Networking.WiFiRS9110.NetworkParameters parameters { get; private set; }
 
         public bool isEmptyNetwork { get; private set; }
+        public bool isKnown { get; private set; }
 
         /// <summary>A hashtable with known Wifi network passwords.</summary>
-        private Hashtable passwords;
+        static private Hashtable passwords = new Hashtable();
 
-        public WifiNetwork(String Ssid, int Rssi)
+        // Static constructor to initialize the static passwords hashtable.
+        // It is invoked before the first instance constructor is run.
+        static WifiNetwork()
         {
-            this.Ssid = Ssid;
-            this.Rssi = Rssi;
-            this.isEmptyNetwork = false;
-
             //Add passwords for known networks
-            passwords = new Hashtable();
             passwords.Add("CTI", "ct1esp0l");
             passwords.Add("CTI_DOMO", "ct1esp0l");
+        }
+
+        public WifiNetwork(GHI.Networking.WiFiRS9110.NetworkParameters parameters)
+        {
+            this.parameters = parameters;
+            this.isEmptyNetwork = false;
+
+            if (passwords.Contains(parameters.Ssid))
+            {
+                isKnown = true;
+                parameters.Key = (String)passwords[parameters.Ssid];
+            }else
+                isKnown = false;
         }
 
         /// <summary>Creates an empty network, used to represent zero scanned networks.</summary>
@@ -200,28 +217,12 @@ namespace WirelessWebCam
             if (isEmptyNetwork)
                 return "No hay ninguna red";
             else
-                return Ssid + " -" + Rssi + "dB";
-        }
-
-        public bool isKnown()
-        {
-            if (!isEmptyNetwork)
-                return passwords.Contains(Ssid);
-            else
-                return false;
-        }
-
-        public String getPassword()
-        {
-            if (isKnown())
-                return (String)passwords[Ssid];
-            else
-                return "";
+                return parameters.Ssid + " -" + parameters.Rssi + "dB";
         }
 
         public override String ToString()
         {
-            return Ssid;
+            return parameters.Ssid;
         }
 
     }
