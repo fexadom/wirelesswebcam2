@@ -72,7 +72,6 @@ namespace WirelessWebCam
             if (parameters != null)
             {
                 networks = new WifiNetwork[parameters.Length];
-                networks[0] = new WifiNetwork();
                 for (int i = 0; i < parameters.Length; i++)
                     networks[i] = new WifiNetwork(parameters[i]);
             }
@@ -105,10 +104,32 @@ namespace WirelessWebCam
                     Debug.Print("Network: " + network.parameters.Ssid + " with password: " + network.parameters.Key);
                     try {
                         wifiRS21.NetworkInterface.Join(network.parameters.Ssid, network.parameters.Key);
-                    }catch(GHI.Networking.WiFiRS9110.JoinException e)
+                    }
+                    catch (System.InvalidOperationException e)
                     {
-                        Debug.Print("Exception: " + e.Message + " retrying...");
-                        wifiRS21.NetworkInterface.Join(network.parameters);
+                        //Account for strange error when you have several networks with the same SSID
+                        Debug.Print("Exception: " + e.Message + " rescanning...");
+
+                        //Try again to rescan that network
+                        GHI.Networking.WiFiRS9110.NetworkParameters[] parameters = wifiRS21.NetworkInterface.Scan(network.parameters.Ssid);
+
+                        if (parameters != null)
+                        {
+                            //Just select network with largest Rssi
+                            int largest = 0;
+                            int bigRssid = parameters[0].Rssi;
+                            for (int i = 0; i < parameters.Length; i++)
+                                if (bigRssid < parameters[i].Rssi)
+                                    largest = i;
+
+                            WifiNetwork n = new WifiNetwork(parameters[largest]);
+                            wifiRS21.NetworkInterface.Join(n.parameters);
+                        }else
+                        {
+                            Debug.Print("No encontro la red...");
+                            connected = false;
+                            NetworkDown("Error de coneccion");
+                        }
                     }
                 }
                 else

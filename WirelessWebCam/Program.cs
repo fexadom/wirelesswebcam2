@@ -11,10 +11,10 @@ using Microsoft.SPOT.Touch;
 using Gadgeteer.Networking;
 using GT = Gadgeteer;
 using GTM = Gadgeteer.Modules;
-using Gadgeteer.Modules.GHIElectronics;
 using GHI.Glide;
 using GHI.Glide.Display;
 using GHI.Glide.UI;
+using Gadgeteer.Modules.GHIElectronics;
 
 namespace WirelessWebCam
 {
@@ -187,7 +187,7 @@ namespace WirelessWebCam
             {
                 case State.Camera:
                     if(isStreaming)
-                        displayTE35.SimpleGraphics.DisplayImage(e, 0, 0);
+                        displayT35.SimpleGraphics.DisplayImage(e, 0, 0);
                     break;
 
                 case State.Webcam:
@@ -346,8 +346,8 @@ namespace WirelessWebCam
                 Debug.Print("Response OK");
                 //This only works if the bitmap is the
                 //same size as the screen it's flushing to
-                displayTE35.SimpleGraphics.DisplayImage(response.Picture.MakeBitmap(),0,0);
-                displayTE35.SimpleGraphics.DisplayText("Leer QR para descargar", Resources.GetFont(Resources.FontResources.NinaB), GT.Color.Black, 80, 220);
+                displayT35.SimpleGraphics.DisplayImage(response.Picture.MakeBitmap(),0,0);
+                displayT35.SimpleGraphics.DisplayText("Leer QR para descargar", Resources.GetFont(Resources.FontResources.NinaB), GT.Color.Black, 80, 220);
             }
             else
             {
