@@ -210,8 +210,8 @@ namespace WirelessWebCam
         static WifiNetwork()
         {
             //Add passwords for known networks
-            passwords.Add("CTI", "ct1esp0l");
-            passwords.Add("CTI_DOMO", "ct1esp0l");
+            passwords.Add("CTI", "ct1esp0l15");
+            passwords.Add("CTI_DOMO", "ct1esp0l15");
         }
 
         public WifiNetwork(GHI.Networking.WiFiRS9110.NetworkParameters parameters)
